@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-# In[27]:
+# In[8]:
 
 
 import numpy as np
@@ -10,9 +10,6 @@ class Node:
     def __init__(self, parent=None, position=None):
         self.parent = parent
         self.position = position
-
-        self.g = 0
-        self.h = 0
         self.f = 0
     def __eq__(self, other):
         return self.position == other.position
@@ -22,7 +19,6 @@ class Node:
 def return_path(Frontier_node,maze):
     path = []
     no_rows, no_columns = np.shape(maze)
-    
     result = [[-1 for i in range(no_columns)] for j in range(no_rows)]
     Frontier = Frontier_node
     
@@ -48,28 +44,20 @@ def visit(unexplored_list, explored_list):
     return explored_list, unexplored_list,Frontier_node
 
 def Chidren_nodes(no_rows,no_columns, node_position, Frontier_node):
-    
-    
-    
     if 0 <= node_position[0] < no_rows and 0<= node_position[1] < no_columns and maze[node_position[0]][node_position[1]]==0:
                 
         # Create new node
         new_node = Node(Frontier_node, node_position)
         return new_node
+    else:
+        return None
+        
     
 def Total_cost(Frontier_node, cost, child, end_node):
-    # Create the f, g, and h values
-    child.g = Frontier_node.g + cost
-
-    ## Heuristic costs calculated here, this is using eucledian distance
-    child.h = (((child.position[0] - end_node.position[0]) ** 2) + 
-               ((child.position[1] - end_node.position[1]) ** 2)) 
-
-    child.f = child.g + child.h
+    # Finding only the absolute value from the start node to the current node
+    child.f = Frontier_node.f + cost
     
     return child.f
-    
-
     
 def search(maze, cost, start, end):
 
@@ -83,9 +71,9 @@ def search(maze, cost, start, end):
     
     i=0
     while len(unexplored_list) > 0:
-           
+                      
         explored_list, unexplored_list, Frontier_node= visit(unexplored_list, explored_list)
-        
+                  
         if Frontier_node == end_node:
             return return_path(Frontier_node,maze)
         
@@ -104,28 +92,29 @@ def search(maze, cost, start, end):
 
         # Loop through children
         for child in children:
-            j=0 
             
-            #Child is on the explored list (search entire explored list)
+            j=0
+                       
             for i in explored_list:
                 if i == child:
-                    j=1
-                    continue 
+                    j=1      
+                    
             if j==1:
                 continue
-
+           
+            
             child.f =Total_cost(Frontier_node, cost, child, end_node)
             
             j=0
-            
             # Child is already in the unexplored list and g cost is already lower
             for i in unexplored_list:
-                if i == child and child.g > i.g:
+                if i == child and child.f > i.f:
                     j=1
-                    continue
+                   
+                    
             if j==1:
                 continue
-
+            
 
             # Add the child to the unexplored list
             unexplored_list.append(child)
@@ -147,6 +136,7 @@ if __name__ == '__main__':
     path = search(maze,cost, start, end)
     print('\n'.join([''.join(["{:" ">3d}".format(item) for item in row]) 
       for row in path]))
+    
 
 
 # In[ ]:
